@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MS-CIT Computer Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #eef2f7;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: auto;
+        }
+
+        #quiz-container {
+            background-color: #fff;
+            padding: 20px 30px;
+            margin: 30px auto;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 800px;
+        }
+
+        h1, h2 {
+            text-align: center;
+        }
+
+        select, button {
+            padding: 10px;
+            margin: 10px auto;
+            display: block;
+            font-size: 16px;
+        }
+
+        .question {
+            margin-bottom: 20px;
+        }
+
+        .question h3 {
+            margin: 0 0 10px 0;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #result {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div id="quiz-container">
+    <h1>🧠 MS-CIT Computer Quiz</h1>
+    <label for="language-select"><strong>Select Language:</strong></label>
+    <select id="language-select">
+        <option value="en">English</option>
+        <option value="mr">मराठी</option>
+    </select>
+    <form id="quiz-form"></form>
+    <button id="submit-btn">Submit Quiz</button>
+    <div id="result" class="hidden">
+        <h2>Your Score: <span id="score"></span> / 20</h2>
+        <button onclick="location.reload()">🔁 Try Again</button>
+    </div>
+</div>
+
+<script>
+    const questions = {
+        en: [
+            { q: "What does MS-CIT stand for?", options: ["Microsoft Certified IT", "Maharashtra State Certificate in Information Technology", "Master's in Computer IT", "None"], answer: 1 },
+            { q: "Which key opens the Start menu?", options: ["Ctrl", "Alt", "Esc", "Windows Key"], answer: 3 },
+            { q: "Default extension of Word file?", options: [".doc", ".docx", ".txt", ".pdf"], answer: 1 },
+            { q: "Example of input device?", options: ["Monitor", "Keyboard", "Speaker", "Printer"], answer: 1 },
+            { q: "Software for presentations?", options: ["MS Word", "MS Excel", "MS PowerPoint", "MS Access"], answer: 2 },
+            { q: "Full form of URL?", options: ["Uniform Resource Locator", "Universal Locator", "Uniform Link", "Universal Link"], answer: 0 },
+            { q: "Which is a browser?", options: ["Chrome", "Word", "Photoshop", "Media Player"], answer: 0 },
+            { q: "Function of OS?", options: ["Hardware Mgmt", "Run Apps", "Internet", "All"], answer: 3 },
+            { q: "Computer memory type?", options: ["RAM", "ROM", "Cache", "All"], answer: 3 },
+            { q: "Key to refresh webpage?", options: ["F5", "F1", "Ctrl+R", "Ctrl+T"], answer: 0 },
+            { q: "HTTP means?", options: ["HyperText Transfer Protocol", "Hyper Transfer Text Protocol", "HyperText Transport", "None"], answer: 0 },
+            { q: "Which is a search engine?", options: ["Google", "Facebook", "Twitter", "Instagram"], answer: 0 },
+            { q: "Ctrl+C means?", options: ["Copy", "Paste", "Cut", "Undo"], answer: 0 },
+            { q: "Type of software?", options: ["Windows", "Office", "Chrome", "All"], answer: 3 },
+            { q: "USB stands for?", options: ["Universal Serial Bus", "Universal Service Bus", "Unified Serial Bus", "None"], answer: 0 },
+            { q: "Type of virus?", options: ["Trojan", "Worm", "Spyware", "All"], answer: 3 },
+            { q: "Antivirus does?", options: ["Protect from malware", "Speed up PC", "Manage files", "All"], answer: 0 },
+            { q: "Cloud storage?", options: ["Google Drive", "Dropbox", "OneDrive", "All"], answer: 3 },
+            { q: "Wi-Fi stands for?", options: ["Wireless Fidelity", "Wireless Field", "Wide Fidelity", "None"], answer: 0 },
+            { q: "Web dev language?", options: ["HTML", "CSS", "JS", "All"], answer: 3 }
+        ],
+        mr: [
+            { q: "MS-CIT चा पूर्ण अर्थ काय?", options: ["Microsoft Certified IT", "महाराष्ट्र स्टेट सर्टिफिकेट इन IT", "मास्टर इन IT", "वरीलपैकी काहीही नाही"], answer: 1 },
+            { q: "स्टार्ट मेन्यू उघडण्यासाठी कोणती की वापरतात?", options: ["Ctrl", "Alt", "Esc", "Windows Key"], answer: 3 },
+            { q: "Word फाइलचा डिफॉल्ट एक्सटेंशन काय आहे?", options: [".doc", ".docx", ".txt", ".pdf"], answer: 1 },
+            { q: "इनपुट डिव्हाइस कोणते?", options: ["Monitor", "Keyboard", "Speaker", "Printer"], answer: 1 },
+            { q: "प्रेझेंटेशन साठी सॉफ्टवेअर?", options: ["MS Word", "MS Excel", "MS PowerPoint", "MS Access"], answer: 2 },
+            { q: "URL चा फुल फॉर्म काय?", options: ["Uniform Resource Locator", "Universal Locator", "Uniform Link", "Universal Link"], answer: 0 },
+            { q: "वेब ब्राउझर कोणते?", options: ["Chrome", "Word", "Photoshop", "Media Player"], answer: 0 },
+            { q: "ऑपरेटिंग सिस्टीमचे कार्य काय?", options: ["हार्डवेअर मॅनेज", "ऍप्स चालवणे", "इंटरनेट", "सर्व"], answer: 3 },
+            { q: "कंप्युटर मेमरीचा प्रकार कोणता?", options: ["RAM", "ROM", "Cache", "सर्व"], answer: 3 },
+            { q: "वेबपेज रिफ्रेश करण्यासाठी की?", options: ["F5", "F1", "Ctrl+R", "Ctrl+T"], answer: 0 },
+            { q: "HTTP चा फुल फॉर्म?", options: ["HyperText Transfer Protocol", "Hyper Transfer Text", "HyperText Transport", "None"], answer: 0 },
+            { q: "सर्च इंजिन कोणते?", options: ["Google", "Facebook", "Twitter", "Instagram"], answer: 0 },
+            { q: "Ctrl+C चा अर्थ?", options: ["कॉपी", "पेस्ट", "कट", "पूर्ववत"], answer: 0 },
+            { q: "सॉफ्टवेअरचा प्रकार?", options: ["Windows", "Office", "Chrome", "सर्व"], answer: 3 },
+            { q: "USB चा फुल फॉर्म?", options: ["Universal Serial Bus", "Universal Service Bus", "Unified Serial Bus", "None"], answer: 0 },
+            { q: "व्हायरसचा प्रकार?", options: ["ट्रोजन", "वर्म", "स्पायवेअर", "सर्व"], answer: 3 },
+            { q: "Antivirus चे कार्य?", options: ["व्हायरसपासून संरक्षण", "स्पीड वाढवणे", "फाईल मॅनेज", "सर्व"], answer: 0 },
+            { q: "Cloud स्टोरेज कोणते?", options: ["Google Drive", "Dropbox", "OneDrive", "सर्व"], answer: 3 },
+            { q: "Wi-Fi चा फुल फॉर्म?", options: ["Wireless Fidelity", "Wireless Field", "Wide Fidelity", "None"], answer: 0 },
+            { q: "वेब डेव्हलपमेंट भाषा कोणती?", options: ["HTML", "CSS", "JavaScript", "सर्व"], answer: 3 }
+        ]
+    };
+
+    const languageSelect = document.getElementById('language-select');
+    const quizForm = document.getElementById('quiz-form');
+    const submitBtn = document.getElementById('submit-btn');
+    const resultDiv = document.getElementById('result');
+    const scoreSpan = document.getElementById('score');
+
+    function renderQuiz(lang) {
+        quizForm.innerHTML = "";
+        questions[lang].forEach((q, idx) => {
+            const div = document.createElement('div');
+            div.className = 'question';
+            div.innerHTML = `<h3>${idx + 1}. ${q.q}</h3>` +
+                q.options.map((opt, i) =>
+                    `<label><input type="radio" name="q${idx}" value="${i}"> ${opt}</label><br>`
+                ).join('');
+            quizForm.appendChild(div);
+        });
+    }
+
+    function calculateScore(lang) {
+        let score = 0;
+        questions[lang].forEach((q, idx) => {
+            const selected = document.querySelector(`input[name="q${idx}"]:checked`);
+            if (selected && parseInt(selected.value) === q.answer) {
+                score++;
+            }
+        });
+        scoreSpan.textContent = score;
+        resultDiv.classList.remove('hidden');
+        submitBtn.style.display = 'none';
+    }
+
+    languageSelect.addEventListener('change', () => renderQuiz(languageSelect.value));
+    submitBtn.addEventListener('click', () => calculateScore(languageSelect.value));
+
+    // Initial load
+    renderQuiz('en');
+</script>
+</body>
+</html>

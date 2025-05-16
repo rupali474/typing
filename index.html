@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Typing Practice - Login & Signup</title>
+  <style>
+    body {
+      background: #f2f2f2;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background: white;
+      padding: 30px 40px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      width: 320px;
+      text-align: center;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .login-btn {
+      background-color: #3498db;
+      color: white;
+    }
+
+    .signup-btn {
+      background-color: #2ecc71;
+      color: white;
+    }
+
+    .toggle-btns {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 15px;
+    }
+
+    .message {
+      color: red;
+      font-size: 14px;
+      margin-top: 10px;
+      height: 18px;
+    }
+
+    .success {
+      color: green;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="toggle-btns">
+      <button onclick="showLogin()" class="login-btn">Login</button>
+      <button onclick="showSignup()" class="signup-btn">Signup</button>
+    </div>
+
+    <h2 id="formTitle">Login</h2>
+
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+
+    <button onclick="handleAction()" id="actionBtn" class="login-btn">Login</button>
+
+    <div class="message" id="messageBox"></div>
+  </div>
+
+  <script>
+    let isLogin = true; // Toggle flag
+
+    function showLogin() {
+      isLogin = true;
+      document.getElementById("formTitle").textContent = "Login";
+      document.getElementById("actionBtn").textContent = "Login";
+      document.getElementById("actionBtn").className = "login-btn";
+      clearForm();
+    }
+
+    function showSignup() {
+      isLogin = false;
+      document.getElementById("formTitle").textContent = "Signup";
+      document.getElementById("actionBtn").textContent = "Signup";
+      document.getElementById("actionBtn").className = "signup-btn";
+      clearForm();
+    }
+
+    function clearForm() {
+      document.getElementById("username").value = "";
+      document.getElementById("password").value = "";
+      document.getElementById("messageBox").textContent = "";
+    }
+
+    function handleAction() {
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const messageBox = document.getElementById("messageBox");
+
+      if (!username || !password) {
+        messageBox.textContent = "Please fill out both fields.";
+        return;
+      }
+
+      let users = JSON.parse(localStorage.getItem("users")) || [];
+
+      if (isLogin) {
+        const found = users.find(u => u.username === username && u.password === password);
+        if (found) {
+          localStorage.setItem("loggedInUser", username);
+          window.location.href = "typing.html"; // Your typing practice page
+        } else {
+          messageBox.textContent = "Invalid username or password.";
+        }
+      } else {
+        const exists = users.find(u => u.username === username);
+        if (exists) {
+          messageBox.textContent = "Username already exists.";
+        } else {
+          users.push({ username, password });
+          localStorage.setItem("users", JSON.stringify(users));
+          messageBox.textContent = "Signup successful! You can now login.";
+          messageBox.classList.add("success");
+          setTimeout(showLogin, 1000);
+        }
+      }
+    }
+  </script>
+</body>
+</html>

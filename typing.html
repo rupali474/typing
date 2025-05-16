@@ -1,0 +1,321 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Typing Practice with Timer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f4f4f4;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    header {
+      background-color: #333;
+      color: white;
+      padding: 10px 20px;
+      text-align: center;
+      font-size: 24px;
+    }
+
+    .timer-bar {
+      background: #ddd;
+      height: 30px;
+      position: relative;
+    }
+
+    .timer-fill {
+      background: #28a745;
+      height: 100%;
+      width: 100%;
+      transition: width 1s linear;
+    }
+
+    .main {
+      display: flex;
+      flex: 1;
+      padding: 20px;
+      gap: 20px;
+      box-sizing: border-box;
+    }
+
+    .panel {
+      flex: 1;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      overflow-y: auto;
+      white-space: pre-wrap;
+    }
+
+    #typingInput {
+      width: 100%;
+      height: 100%;
+      font-size: 18px;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+
+    .correct {
+      color: green;
+    }
+
+    .incorrect {
+      color: red;
+    }
+
+    footer {
+      padding: 10px 20px;
+      background: #222;
+      color: #eee;
+      text-align: center;
+      font-size: 16px;
+    }
+
+    .disabled {
+      background-color: #eee;
+      color: #888;
+    }
+    nav {
+  background-color: #333;      /* Dark background */
+  padding: 10px 20px;          /* Some padding */
+  text-align: center;          /* Center the links */
+}
+
+nav a {
+  color: white;                /* White text */
+  text-decoration: none;       /* Remove underline */
+  margin: 0 15px;              /* Space between links */
+  font-weight: bold;
+  font-size: 16px;
+  transition: color 0.3s ease;
+}
+
+nav a:hover {
+  color: #ff9800;              /* Orange on hover */
+  text-decoration: underline; /* Optional underline on hover */
+}
+
+nav a.active {
+  color: #ff9800;              /* Highlight active page */
+  text-decoration: underline;
+}
+
+  </style>
+</head>
+<body>
+
+<header>Typing Practice</header>
+<div style="text-align:center; margin: 15px;">
+  <label for="passageSelector"><strong>Select Passage:</strong></label>
+  <select id="passageSelector">
+    <option value="Passage 1">Passage 1</option>
+    <option value="Passage 2">Passage 2</option>
+    <option value="Passage 3">Passage 3</option>
+  </select>
+</div>
+<div><nav>
+  <a href="typing.html" class="active">Passages</a>
+  <a href="typing2.html">Sentences</a>
+  <a href="typing3.html">QUIZ</a>
+</nav>
+</div>
+<div class="timer-bar">
+  <div class="timer-fill" id="timerFill"></div>
+</div>
+
+<div class="main">
+  <div class="panel" id="referenceText">
+    The sun rises in the east and sets in the west. Every day, people wake up and begin their routine. Some go to work, some go to school, and others stay home. The streets fill with cars, bikes, and buses. Birds chirp, and the world slowly comes to life.
+
+As the day goes on, people do their tasks. They meet friends, write emails, and make phone calls. Lunch is a break, a time to rest and enjoy a meal. Then the afternoon passes.
+
+In the evening, lights turn on. Families gather for dinner. Children laugh, parents talk, and the home feels warm. Soon, night falls. The sky turns dark, and stars begin to shine.
+
+Another day ends. People go to bed, ready to rest. Tomorrow will come again, just like today, with new moments and new chances.
+
+      
+
+  </div>
+  <div class="panel">
+    <textarea id="typingInput" placeholder="Start typing..."></textarea>
+  </div>
+</div>
+
+<footer>
+  <div>
+    Time: <span id="timeRemaining">300</span>s |
+    WPM: <span id="wpm">0</span> |
+    Accuracy: <span id="accuracy">100</span>% |
+    Marks: <span id="marks">0</span>/100
+  </div>
+</footer>
+<div id="motivationalMessage" style="text-align:center; margin: 20px; font-size: 18px; color: #d35400;"></div>
+
+
+    
+<script>
+  const passages = {
+  "Passage 1": `The sun rises in the east and sets in the west. Every day, people wake up and begin their routine. Some go to work, some go to school, and others stay home. The streets fill with cars, bikes, and buses. Birds chirp, and the world slowly comes to life.`,
+  "Passage 2": `Tally ERP 9 is an important software used in accounting and business management. It helps businesses keep track of sales, purchases, expenses, and income. With Tally, you can generate reports, manage inventory, and handle payroll.`,
+ 
+  "Passage 3": `Typing is a fundamental skill in the digital age. By practicing every day, you can increase your speed and accuracy. Remember, consistency is the key to improvement. Don't rush—focus on typing correctly and efficiently.`
+};
+
+  function updateStats() {
+  const userText = typingInput.value;
+  const wordsTyped = userText.trim().split(/\s+/).filter(Boolean).length;
+  const timeElapsed = totalTime - timeLeft;
+  const minutesElapsed = timeElapsed / 60;
+  const wpm = minutesElapsed > 0 ? Math.round(wordsTyped / minutesElapsed) : 0;
+
+  let correct = 0;
+  for (let i = 0; i < userText.length; i++) {
+    if (userText[i] === originalText[i]) correct++;
+  }
+  const accuracy = userText.length > 0 ? Math.round((correct / userText.length) * 100) : 100;
+
+  // Calculate marks
+  let marks = 0;
+  if (wpm >= 30 && accuracy >= 90) {
+    marks = 100;
+  } else {
+    marks = Math.min(100, Math.round((wpm * 2) + (accuracy * 0.5)));
+  }
+
+  wpmDisplay.textContent = wpm;
+  accuracyDisplay.textContent = accuracy;
+  document.getElementById('marks').textContent = marks;
+}
+
+        const referenceText = document.getElementById('referenceText');
+const typingInput = document.getElementById('typingInput');
+const wpmDisplay = document.getElementById('wpm');
+const accuracyDisplay = document.getElementById('accuracy');
+const timeRemaining = document.getElementById('timeRemaining');
+const timerFill = document.getElementById('timerFill');
+
+
+const passageSelector = document.getElementById('passageSelector');
+let originalText = passages["Passage 1"];
+referenceText.textContent = originalText;
+
+passageSelector.addEventListener('change', () => {
+  originalText = passages[passageSelector.value];
+  referenceText.textContent = originalText;
+  typingInput.value = "";
+  typingInput.disabled = false;
+  typingInput.classList.remove('disabled');
+  referenceText.scrollTop = 0;
+  timerFill.style.width = "100%";
+  startTime = null;
+  clearInterval(interval);
+  timeLeft = totalTime;
+  timeRemaining.textContent = timeLeft;
+  wpmDisplay.textContent = "0";
+  accuracyDisplay.textContent = "100";
+  document.getElementById("marks").textContent = "0";
+  document.getElementById("motivationalMessage").textContent = "";
+});
+
+let startTime = null;
+let interval = null;
+const totalTime = 300; // seconds (5 minutes)
+let timeLeft = totalTime;
+
+timeRemaining.textContent = timeLeft;  // Make sure initial display matches
+
+function updateStats() {
+  const userText = typingInput.value;
+  const wordsTyped = userText.trim().split(/\s+/).filter(Boolean).length;
+  const timeElapsed = totalTime - timeLeft;
+  const minutesElapsed = timeElapsed / 60;
+  const wpm = minutesElapsed > 0 ? Math.round(wordsTyped / minutesElapsed) : 0;
+const motivationalDiv = document.getElementById('motivationalMessage');
+if (wpm < 30 || accuracy < 80) {
+  motivationalDiv.textContent = "Keep going! Every expert was once a beginner. Practice makes progress!";
+} else {
+  motivationalDiv.textContent = ""; // Clear message if they pass
+}
+
+  let correct = 0;
+  for (let i = 0; i < userText.length; i++) {
+   if ((userText[i] || '').toLowerCase() === (originalText[i] || '').toLowerCase()) correct++;
+
+  }
+  const accuracy = userText.length > 0 ? Math.round((correct / userText.length) * 100) : 100;
+
+  wpmDisplay.textContent = wpm;
+  accuracyDisplay.textContent = accuracy;
+}
+
+function updateReferenceText() {
+  const userText = typingInput.value;
+  let formatted = '';
+  for (let i = 0; i < originalText.length; i++) {
+    const refChar = originalText[i];
+    const userChar = userText[i];
+    if (userChar == null) {
+      formatted += refChar;
+    } else if ((userChar || '').toLowerCase() === (refChar || '').toLowerCase()) {
+
+      formatted += `<span class="correct">${refChar}</span>`;
+    } else {
+      formatted += `<span class="incorrect">${refChar}</span>`;
+    }
+  }
+  referenceText.innerHTML = formatted;
+}
+
+function startTimer() {
+  interval = setInterval(() => {
+    timeLeft--;
+    timeRemaining.textContent = timeLeft;
+    timerFill.style.width = (timeLeft / totalTime * 100) + '%';
+
+    updateStats();
+
+    if (timeLeft <= 0) {
+      clearInterval(interval);
+      typingInput.disabled = true;
+      typingInput.classList.add('disabled');
+    }
+  }, 1000);
+}
+
+
+typingInput.addEventListener('input', () => {
+  if (!startTime) {
+    startTime = new Date();
+    startTimer();
+  }
+  updateReferenceText();
+  updateStats();
+});
+
+// ⬇️ Paste the blocking code HERE
+
+["cut", "copy", "paste"].forEach(evt => {
+  typingInput.addEventListener(evt, function(e) {
+    e.preventDefault();
+    alert("Cut, copy, and paste are disabled.");
+  });
+});
+
+typingInput.addEventListener("contextmenu", function(e) {
+  e.preventDefault();
+  alert("Right-click is disabled.");
+});
+
+    
+</script>
+
+</body>
+</html>

@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Typing Practice</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom right, #f0f4ff, #fff3e0);
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    #timer {
+      text-align: center;
+      font-size: 20px;
+      margin-bottom: 15px;
+      color: #d32f2f;
+    }
+
+    .sentence-box {
+      max-width: 700px;
+      margin: 0 auto 20px auto;
+      font-size: 20px;
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      line-height: 1.6;
+      min-height: 100px;
+    }
+
+    .highlight {
+      background-color: #d1fae5;
+      padding: 2px 5px;
+      border-radius: 4px;
+    }
+
+    .incorrect {
+      background-color: #fecaca;
+    }
+
+    textarea {
+      width: 100%;
+      padding: 15px;
+      font-size: 18px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+      resize: none;
+      height: 100px;
+    }
+
+    button {
+      display: block;
+      margin: 20px auto;
+      background-color: #2563eb;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background-color: #1e40af;
+    }
+
+    .stats, #message {
+      text-align: center;
+      font-size: 18px;
+      margin-top: 10px;
+    }
+
+    select {
+      display: block;
+      margin: 0 auto 20px auto;
+      font-size: 16px;
+      padding: 10px;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Sentence Typing Practice</h1>
+
+  <div id="timer">Time Left: 60s</div>
+
+  <select id="sentenceSelect">
+    <option value="">Select a sentence to begin</option>
+  </select>
+
+  <div class="sentence-box" id="displaySentence"></div>
+
+  <textarea id="userInput" placeholder="Type the sentence here..." disabled></textarea>
+
+  <button onclick="checkTyping()">Submit</button>
+
+  <div class="stats" id="stats"></div>
+  <div id="message"></div>
+
+  <script>
+    const sentences = [
+      "The quick brown fox jumps over the lazy dog.",
+      "Typing is a valuable skill for every student.",
+      "Practice every day to improve your speed.",
+      "Accuracy is more important than speed.",
+      "Learn to type without looking at the keyboard.",
+      "Consistent practice brings better results.",
+      "Challenge yourself with new sentences.",
+      "Errors help us learn and grow stronger.",
+      "Stay calm and keep your hands relaxed.",
+      "Make sure to maintain a good posture.",
+      "Focus on one sentence at a time.",
+      "Speed comes with time and effort.",
+      "This typing test will improve your WPM.",
+      "Be patient and progress will come.",
+      "You are doing great—keep going!",
+      "Never give up on your goals.",
+      "Each sentence builds your confidence.",
+      "Typing tests can be fun and helpful.",
+      "Try to reduce your typing errors.",
+      "Keep your eyes on the screen.",
+      "Success starts with small steps.",
+      "Always aim for clear and correct typing.",
+      "You are getting faster with each try.",
+      "Make a habit of typing daily.",
+      "Typing fast helps save valuable time.",
+      "Your brain and fingers need coordination.",
+      "Mistakes are part of learning.",
+      "Speed up slowly while staying accurate.",
+      "Challenge yourself to improve every day.",
+      "Celebrate your typing achievements!"
+    ];
+
+    const select = document.getElementById('sentenceSelect');
+    const display = document.getElementById('displaySentence');
+    const input = document.getElementById('userInput');
+    const stats = document.getElementById('stats');
+    const timer = document.getElementById('timer');
+    const message = document.getElementById('message');
+
+    let selectedSentence = "";
+    let startTime = null;
+    let timeLeft = 60;
+    let countdown;
+
+    // Fill dropdown
+    sentences.forEach((sentence, index) => {
+      const option = document.createElement('option');
+      option.value = index;
+      option.textContent = `Sentence ${index + 1}`;
+      select.appendChild(option);
+    });
+
+    select.addEventListener('change', () => {
+      const index = select.value;
+      if (index === "") return;
+      selectedSentence = sentences[index];
+      input.value = "";
+      input.disabled = false;
+      input.focus();
+      stats.innerHTML = "";
+      message.innerHTML = "";
+      timeLeft = 60;
+      timer.textContent = "Time Left: 60s";
+      clearInterval(countdown);
+      startTime = null;
+      renderSentence();
+    });
+
+    function renderSentence() {
+      const typedWords = input.value.trim().split(/\s+/);
+      const refWords = selectedSentence.split(" ");
+      let result = "";
+
+      for (let i = 0; i < refWords.length; i++) {
+        if (typedWords[i] == null) {
+          result += refWords[i] + " ";
+        } else if (typedWords[i].toLowerCase() === refWords[i].toLowerCase()) {
+          result += `<span class="highlight">${refWords[i]}</span> `;
+        } else {
+          result += `<span class="incorrect">${refWords[i]}</span> `;
+        }
+      }
+      display.innerHTML = result.trim();
+    }
+
+    input.addEventListener("input", () => {
+      renderSentence();
+
+      if (!startTime) {
+        startTime = new Date();
+        countdown = setInterval(() => {
+          timeLeft--;
+          timer.textContent = `Time Left: ${timeLeft}s`;
+
+          if (timeLeft <= 0) {
+            clearInterval(countdown);
+            checkTyping();
+            input.disabled = true;
+          }
+        }, 1000);
+      }
+    });
+
+    function checkTyping() {
+      if (!selectedSentence) return;
+
+      clearInterval(countdown);
+      input.disabled = true;
+
+      const endTime = new Date();
+      const duration = (endTime - startTime) / 1000 / 60;
+
+      const userWords = input.value.trim().split(/\s+/);
+      const refWords = selectedSentence.split(" ");
+
+      let correct = 0;
+      for (let i = 0; i < refWords.length; i++) {
+        if (userWords[i] && userWords[i].toLowerCase() === refWords[i].toLowerCase()) {
+          correct++;
+        }
+      }
+
+      const wpm = Math.round(userWords.length / duration);
+      const marks = Math.round((correct / refWords.length) * 100);
+
+      stats.innerHTML = `
+        <strong>Marks:</strong> ${marks}/100<br/>
+        <strong>WPM:</strong> ${wpm}<br/>
+        <strong>Correct Words:</strong> ${correct} / ${refWords.length}
+      `;
+
+      // Motivational message
+      if (marks < 70 || wpm < 15) {
+        message.innerHTML = `<p style="color:#c62828;"><strong>Don't worry!</strong> Keep practicing, you will definitely improve. 💪</p>`;
+      } else {
+        message.innerHTML = `<p style="color:#2e7d32;"><strong>Great job!</strong> Keep up the good work! 🎉</p>`;
+      }
+    }
+    // Disable copy and paste in textarea
+input.addEventListener('paste', (e) => {
+  e.preventDefault();
+  alert("Pasting is not allowed!");
+});
+
+input.addEventListener('copy', (e) => {
+  e.preventDefault();
+  alert("Copying is not allowed!");
+});
+
+  </script>
+
+</body>
+</html>
